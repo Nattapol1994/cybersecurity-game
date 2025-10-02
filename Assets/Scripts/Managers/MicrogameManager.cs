@@ -24,7 +24,6 @@ public class MicrogameManager : MonoBehaviour
     public float maxDifficulty = 2f;
 
     private GameObject currentMicrogame;
-    private bool success;
     private int score;
     private int roundNumber;
 
@@ -39,49 +38,40 @@ public class MicrogameManager : MonoBehaviour
     {
         while (lives > 0)
         {
-            // pick random microgame prefab
+            // Pick random microgame prefab
             var prefab = microgames[Random.Range(0, microgames.Count)];
 
             // Show instruction for 1 sec
-            instructionText.text = prefab.GetComponent<BaseMicrogame>()?.instruction ?? "GO!";
-            instructionText.gameObject.SetActive(true);
+            BaseMicrogame microPrefab = prefab.GetComponent<BaseMicrogame>();
+            instructionText.text = microPrefab?.instruction ?? "GO!";
+            showIntermission();
             yield return new WaitForSeconds(1f);
-            instructionText.gameObject.SetActive(false);
+            hideIntermission();
 
-            // Find the Canvas 
+            // Find Canvas and spawn microgame under it
             Canvas canvas = FindObjectOfType<Canvas>();
-
-            // Spawn under the Canvas instead of world space
             currentMicrogame = Instantiate(prefab, canvas.transform);
-
-            // Make sure it’s active
+            currentMicrogame.transform.localPosition = Vector3.zero;
+            currentMicrogame.transform.localScale = Vector3.one;
             currentMicrogame.SetActive(true);
 
-            // assign manager and initialize via base class
+            // Assign manager and initialize microgame
             BaseMicrogame microgame = currentMicrogame.GetComponent<BaseMicrogame>();
             if (microgame != null)
             {
                 microgame.manager = this;
-                microgame.Initialize(difficulty); // safe, polymorphic call
+                microgame.Initialize(difficulty);
+                microgame.StartMicrogame(microgame.baseTime / difficulty);
             }
 
-            // reset state
-            success = false;
-            float timer = baseMicrogameTime / difficulty;
-            timer = Mathf.Clamp(timer, 1f, baseMicrogameTime); // limit min time
-
-            difficulty = Mathf.Clamp(difficulty, minDifficulty, maxDifficulty);
-            difficultyText.text = $"Difficulty: {difficulty:F1}";
-
-            // wait for player input or timeout
-            while (timer > 0 && !success)
+            // Wait until microgame is done (success or timeout)
+            while (!microgame.IsDone)
             {
-                timer -= Time.deltaTime;
                 yield return null;
             }
 
-            // outcome
-            if (success)
+            // Handle outcome
+            if (microgame.WasSuccessful)   // add this property in BaseMicrogame
             {
                 score++;
                 Debug.Log("Success!");
@@ -94,18 +84,20 @@ public class MicrogameManager : MonoBehaviour
                 difficulty -= difficultyStep;
             }
 
+            difficulty = Mathf.Clamp(difficulty, minDifficulty, maxDifficulty);
+            difficultyText.text = $"Difficulty: {difficulty:F1}";
             UpdateUI();
 
+            // Destroy microgame prefab
             Destroy(currentMicrogame);
             roundNumber++;
 
             yield return new WaitForSeconds(0.5f);
         }
 
-        // game over
+        // Game over
         GameOver();
     }
-
     void UpdateUI()
     {
         scoreText.text = $"Score: {score}";
@@ -119,16 +111,21 @@ public class MicrogameManager : MonoBehaviour
         Debug.Log("Game Over!");
     }
 
-    // Called by prefab when clicked
-    public void MicrogameSuccess()
+    void showIntermission()
     {
-        success = true;
+        instructionText.gameObject.SetActive(true);
+        scoreText.gameObject.SetActive(true);
+        livesText.gameObject.SetActive(true);
+        difficultyText.gameObject.SetActive(true);
     }
 
-    public void MicrogameFailure()
+    void hideIntermission()
     {
-        success = false;
-    }
+        instructionText.gameObject.SetActive(false);
+        scoreText.gameObject.SetActive(false);
+        livesText.gameObject.SetActive(false);
+        difficultyText.gameObject.SetActive(false);
+    }   
 
     // restart button (hook up in UI)
     public void Restart()

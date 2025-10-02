@@ -11,14 +11,7 @@ public class TestMicrogame : BaseMicrogame
 
     void OnMouseDown()
     {
-        manager.MicrogameSuccess();
-        gameObject.SetActive(false);
-    }
-    
-    protected override void OnTimeout()
-    {
-        running = false;
-        manager.MicrogameFailure();
+        MicrogameSuccess();
         gameObject.SetActive(false);
     }
 }

@@ -1,6 +1,7 @@
 using System.Collections;
-using System.Collections.Generic;   
+using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public abstract class BaseMicrogame : MonoBehaviour
 {
@@ -11,8 +12,12 @@ public abstract class BaseMicrogame : MonoBehaviour
 
     protected float timer;
     protected bool running;
+    public Image timerBar; // assign in prefab
 
     [TextArea] public string instruction = "Perform the task!";
+
+    public bool IsDone { get; private set; } = false;
+    public bool WasSuccessful { get; private set; } = false;
 
     // Called after the manager is assigned
     public abstract void Initialize(float difficulty = 1f);
@@ -28,9 +33,39 @@ public abstract class BaseMicrogame : MonoBehaviour
         if (!running) return;
 
         timer -= Time.deltaTime;
+        if (timerBar != null)
+        {
+            timerBar.fillAmount = timer / baseTime;
+            timerBar.color = Color.Lerp(Color.red, Color.white, timer / baseTime);
+        }
         if (timer <= 0f)
             OnTimeout();
     }
 
-    protected abstract void OnTimeout();
+    protected virtual void OnTimeout()
+    {
+        running = false;
+        IsDone = true;
+        WasSuccessful = false;
+    }
+
+    public void ReduceTimer(float amount)
+    {
+        timer -= amount;
+        if (timer < 0) timer = 0;
+    }
+
+    public void MicrogameSuccess()
+    {
+        running = false;
+        IsDone = true;
+        WasSuccessful = true;
+    }
+
+    public void MicrogameFailure()
+    {
+        running = false;
+        IsDone = true;
+        WasSuccessful = false;
+    }
 }

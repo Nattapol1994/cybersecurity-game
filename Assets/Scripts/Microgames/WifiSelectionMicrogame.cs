@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
-
+using static TextUtils;
 public class WifiSelectionMicrogame : BaseMicrogame
 {
     public GameObject buttonPrefab; // assign a simple TMP button prefab here
@@ -12,6 +12,7 @@ public class WifiSelectionMicrogame : BaseMicrogame
     public float spreadY = 100f; // vertical spacing
 
     private List<GameObject> spawnedButtons = new List<GameObject>();
+    public Transform buttonContainer;
     private bool initialized = false;
 
     public override void Initialize(float difficulty = 1f)
@@ -62,7 +63,7 @@ public class WifiSelectionMicrogame : BaseMicrogame
     // Instantiate buttons vertically on the left side
     for (int i = 0; i < options.Count; i++)
     {
-        GameObject btnObj = Instantiate(buttonPrefab, transform);
+        GameObject btnObj = Instantiate(buttonPrefab, buttonContainer);
         btnObj.GetComponentInChildren<TMPro.TextMeshProUGUI>().text = options[i];
 
         // vertical layout: stacked downward
@@ -77,33 +78,12 @@ public class WifiSelectionMicrogame : BaseMicrogame
     }
 }
 
-
-    string ScrambleSSID(string original)
-    {
-        Dictionary<char, char> map = new Dictionary<char, char>()
-        {
-            {'O','0'}, {'E','3'}, {'I','1'}, {'A','4'}, {'S','5'}
-        };
-
-        char[] chars = original.ToCharArray();
-        for (int i = 0; i < chars.Length; i++)
-        {
-            char upper = char.ToUpper(chars[i]); // normalize for lookup
-            if (map.ContainsKey(upper) && Random.value > 0.5f)
-            {
-                chars[i] = map[upper]; // write substitution back into the original
-            }
-        }
-
-        return new string(chars);
-    }
-
     void OnButtonClicked(bool correct)
     {
         if (correct)
-            manager.MicrogameSuccess();
+            MicrogameSuccess();
         else
-            manager.MicrogameFailure();
+            MicrogameFailure();
         // hide the microgame
             foreach (var btn in spawnedButtons)
                 Destroy(btn);
@@ -112,10 +92,15 @@ public class WifiSelectionMicrogame : BaseMicrogame
 
     protected override void OnTimeout()
     {
-        running = false;
-        manager.MicrogameFailure();
+        base.OnTimeout();  
+        // Time's up, treat as failure
+
+        // Clean up dynamically spawned buttons
         foreach (var btn in spawnedButtons)
             Destroy(btn);
+        spawnedButtons.Clear();
+
+        // Hide this microgame panel
         gameObject.SetActive(false);
     }
 }
