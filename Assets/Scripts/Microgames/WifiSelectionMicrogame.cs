@@ -14,6 +14,8 @@ public class WifiSelectionMicrogame : BaseMicrogame
 
     private WifiConfig config;
 
+    [SerializeField] private TMPro.TextMeshProUGUI ssidLabel;
+
     public override void Initialize(float difficulty = 1f)
     {
         if (config == null)
@@ -51,14 +53,15 @@ public class WifiSelectionMicrogame : BaseMicrogame
                 (options[i], options[r]) = (options[r], options[i]);
             }
 
-        // Create instruction text showing the correct SSID
-        GameObject instructionObj = new GameObject("CorrectSSIDLabel", typeof(RectTransform));
-        instructionObj.transform.SetParent(transform, false);
-        var tmp = instructionObj.AddComponent<TMPro.TextMeshProUGUI>();
-        tmp.text = $"Connect to: {correctSSID}";
-        tmp.fontSize = 36;
-        tmp.alignment = TMPro.TextAlignmentOptions.Center;
-        tmp.rectTransform.anchoredPosition = new Vector2(0, 200f); // position at top center
+        // Update existing label instead of creating a new one
+        if (ssidLabel != null)
+        {
+            ssidLabel.text = $"Connect to: {correctSSID}";
+        }
+        else
+        {
+            Debug.LogWarning("SSID Label not assigned in Inspector!");
+        }
 
         // Instantiate buttons vertically on the left side
         for (int i = 0; i < options.Count; i++)

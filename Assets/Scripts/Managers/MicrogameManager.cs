@@ -8,12 +8,12 @@ public class MicrogameManager : MonoBehaviour
     [Header("Microgame Settings")]
     public List<GameObject> microgames; 
     public float baseMicrogameTime = 3f;    
-    public int lives = 3;
+    public int lives = 5;
 
     [Header("UI References")]
     public TextMeshProUGUI instructionText;
     public TextMeshProUGUI scoreText;
-    public TextMeshProUGUI livesText;
+    public LifeDisplay lifeDisplay; 
     public GameObject gameOverPanel; // assign in Inspector
     public TextMeshProUGUI difficultyText;
 
@@ -24,14 +24,16 @@ public class MicrogameManager : MonoBehaviour
     public float maxDifficulty = 2f;
 
     private GameObject currentMicrogame;
-    private int score;
+    private int score = 0;
     private int roundNumber;
 
     void Start()
     {
         gameOverPanel.SetActive(false);
+        lifeDisplay.InitializeLives(lives);
         UpdateUI();
         StartCoroutine(RunMicrogames());
+        instructionText.gameObject.SetActive(false);
     }
 
     IEnumerator RunMicrogames()
@@ -44,9 +46,8 @@ public class MicrogameManager : MonoBehaviour
             // Show instruction for 1 sec
             BaseMicrogame microPrefab = prefab.GetComponent<BaseMicrogame>();
             instructionText.text = microPrefab?.instruction ?? "GO!";
-            showIntermission();
-            yield return new WaitForSeconds(1f);
-            hideIntermission();
+            // Show score/lives first, then instruction
+            yield return StartCoroutine(showIntermission());
 
             // Find Canvas and spawn microgame under it
             Canvas canvas = FindFirstObjectByType<Canvas>();
@@ -73,7 +74,7 @@ public class MicrogameManager : MonoBehaviour
             // Handle outcome
             if (microgame.WasSuccessful)   
             {
-                score++;
+                score += (int)(1000 * (microgame.finishTime / microgame.baseTime));
                 Debug.Log("Success!");
                 difficulty += difficultyStep;
             }
@@ -85,14 +86,13 @@ public class MicrogameManager : MonoBehaviour
             }
 
             difficulty = Mathf.Clamp(difficulty, minDifficulty, maxDifficulty);
-            difficultyText.text = $"Difficulty: {difficulty:F1}";
             UpdateUI();
 
             // Destroy microgame prefab
             Destroy(currentMicrogame);
             roundNumber++;
 
-            yield return new WaitForSeconds(0.5f);
+            yield return new WaitForSeconds(0f);
         }
 
         // Game over
@@ -101,7 +101,7 @@ public class MicrogameManager : MonoBehaviour
     void UpdateUI()
     {
         scoreText.text = $"Score: {score}";
-        livesText.text = $"Lives: {lives}";
+        lifeDisplay.UpdateLives(lives);
     }
 
     void GameOver()
@@ -111,28 +111,35 @@ public class MicrogameManager : MonoBehaviour
         Debug.Log("Game Over!");
     }
 
-    void showIntermission()
+    IEnumerator showIntermission()
     {
-        instructionText.gameObject.SetActive(true);
+        // Show Score and Lives
         scoreText.gameObject.SetActive(true);
-        livesText.gameObject.SetActive(true);
-        difficultyText.gameObject.SetActive(true);
-    }
+        lifeDisplay.gameObject.SetActive(true);
 
-    void hideIntermission()
-    {
-        instructionText.gameObject.SetActive(false);
+        // Wait for 1 second to show score/lives
+        yield return new WaitForSeconds(1f);
+        
+        // Hide score and lives
         scoreText.gameObject.SetActive(false);
-        livesText.gameObject.SetActive(false);
-        difficultyText.gameObject.SetActive(false);
-    }   
+        lifeDisplay.gameObject.SetActive(false);
+
+        // Show Instruction
+        instructionText.gameObject.SetActive(true);
+
+        // Wait for 1 second to show instruction
+        yield return new WaitForSeconds(1f);
+
+        // Hide all UI elements after the sequence
+        instructionText.gameObject.SetActive(false);
+    }
 
     // restart button (hook up in UI)
     public void Restart()
     {
         Debug.Log("Restart clicked!");
         score = 0;
-        lives = 3;
+        lives = 5;
         roundNumber = 0;
         gameOverPanel.SetActive(false);
         UpdateUI();

@@ -142,7 +142,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
+  m_Sprite: {fileID: -3809274694500071010, guid: 1afe2c5c636a794469bd9806927c01c0, type: 3}
   m_Type: 3
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -245,19 +245,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PassphraseFormingMicrogame
   manager: {fileID: 0}
   baseTime: 5
+  finishTime: 0
   timerBar: {fileID: 5381478361955578024}
   instruction: Select unpredictable words!
-  allWords:
-  - word: a
-    category: A
-  - word: aa
-    category: A
-  - word: aaa
-    category: A
-  - word: b
-    category: B
-  - word: bb
-    category: B
   buttonContainer: {fileID: 2801934510091164051}
   wordButtonPrefab: {fileID: 1694456664672230283, guid: 943982bd4a3af99459be0576878389a9, type: 3}
   feedbackText: {fileID: 1398813995306457856}

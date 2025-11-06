@@ -9,10 +9,14 @@ public abstract class BaseMicrogame : MonoBehaviour
 
     [Header("Timing")]
     public float baseTime = 5f; // per prefab default
+    public float finishTime = 0f;
 
     protected float timer;
     protected bool running;
     public Image timerBar; // assign in prefab
+
+    private Color startColor = Color.yellow;
+    private Color endColor = Color.red;
 
     [TextArea] public string instruction = "Perform the task!";
 
@@ -38,7 +42,7 @@ public abstract class BaseMicrogame : MonoBehaviour
         if (timerBar != null)
         {
             timerBar.fillAmount = timer / baseTime;
-            timerBar.color = Color.Lerp(Color.red, Color.white, timer / baseTime);
+            timerBar.color = Color.Lerp(endColor, startColor, timer / baseTime);
         }
         if (timer <= 0f)
             OnTimeout();
@@ -60,6 +64,7 @@ public abstract class BaseMicrogame : MonoBehaviour
         running = false;
         IsDone = true;
         WasSuccessful = true;
+        finishTime = timer;
     }
 
     public void MicrogameFailure()
