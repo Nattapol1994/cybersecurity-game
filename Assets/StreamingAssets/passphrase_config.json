@@ -1,0 +1,124 @@
+{
+  "words": [
+    {
+      "word": "sun",
+      "categories": ["nature", "light", "energy"],
+      "related": ["moon", "fire", "day"],
+      "difficulty": 1
+    },
+    {
+      "word": "fire",
+      "categories": ["element", "danger", "energy"],
+      "related": ["flame", "heat", "burn"],
+      "difficulty": 1.5
+    },
+    {
+      "word": "moon",
+      "categories": ["nature", "night", "light"],
+      "related": ["sun", "star", "sky"],
+      "difficulty": 1
+    },
+    {
+      "word": "window",
+      "categories": ["object", "home", "transparent"],
+      "related": ["glass", "door", "wall"],
+      "difficulty": 1
+    },
+    {
+      "word": "rain",
+      "categories": ["weather", "nature", "water"],
+      "related": ["cloud", "storm", "umbrella"],
+      "difficulty": 1
+    },
+    {
+      "word": "tree",
+      "categories": ["nature", "plant", "life"],
+      "related": ["leaf", "forest", "branch"],
+      "difficulty": 1
+    },
+    {
+      "word": "ocean",
+      "categories": ["nature", "water", "vast"],
+      "related": ["sea", "wave", "fish"],
+      "difficulty": 1.2
+    },
+    {
+      "word": "mountain",
+      "categories": ["nature", "earth", "height"],
+      "related": ["rock", "snow", "climb"],
+      "difficulty": 1.3
+    },
+    {
+      "word": "lightning",
+      "categories": ["weather", "energy", "danger"],
+      "related": ["storm", "flash", "thunder"],
+      "difficulty": 1.5
+    },
+    {
+      "word": "shadow",
+      "categories": ["light", "contrast", "mystery"],
+      "related": ["darkness", "silhouette", "form"],
+      "difficulty": 1.8
+    },
+    {
+      "word": "mirror",
+      "categories": ["object", "reflection", "home"],
+      "related": ["glass", "image", "light"],
+      "difficulty": 1.2
+    },
+    {
+      "word": "clock",
+      "categories": ["object", "time", "mechanism"],
+      "related": ["watch", "second", "tick"],
+      "difficulty": 1.3
+    },
+    {
+      "word": "book",
+      "categories": ["object", "knowledge", "paper"],
+      "related": ["page", "read", "library"],
+      "difficulty": 1
+    },
+    {
+      "word": "computer",
+      "categories": ["technology", "object", "modern"],
+      "related": ["keyboard", "screen", "data"],
+      "difficulty": 1.8
+    },
+    {
+      "word": "virus",
+      "categories": ["technology", "danger", "health"],
+      "related": ["infection", "malware", "disease"],
+      "difficulty": 2
+    },
+    {
+      "word": "robot",
+      "categories": ["technology", "machine", "future"],
+      "related": ["metal", "AI", "automation"],
+      "difficulty": 1.7
+    },
+    {
+      "word": "signal",
+      "categories": ["communication", "technology", "wave"],
+      "related": ["network", "transmit", "frequency"],
+      "difficulty": 1.5
+    },
+    {
+      "word": "password",
+      "categories": ["security", "technology", "data"],
+      "related": ["login", "key", "protection"],
+      "difficulty": 1.8
+    },
+    {
+      "word": "key",
+      "categories": ["object", "security", "access"],
+      "related": ["lock", "door", "password"],
+      "difficulty": 1.2
+    },
+    {
+      "word": "door",
+      "categories": ["object", "home", "entry"],
+      "related": ["wall", "key", "window"],
+      "difficulty": 1
+    }
+  ]
+}

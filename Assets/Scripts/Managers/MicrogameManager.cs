@@ -49,7 +49,7 @@ public class MicrogameManager : MonoBehaviour
             hideIntermission();
 
             // Find Canvas and spawn microgame under it
-            Canvas canvas = FindObjectOfType<Canvas>();
+            Canvas canvas = FindFirstObjectByType<Canvas>();
             currentMicrogame = Instantiate(prefab, canvas.transform);
             currentMicrogame.transform.localPosition = Vector3.zero;
             currentMicrogame.transform.localScale = Vector3.one;
@@ -71,7 +71,7 @@ public class MicrogameManager : MonoBehaviour
             }
 
             // Handle outcome
-            if (microgame.WasSuccessful)   // add this property in BaseMicrogame
+            if (microgame.WasSuccessful)   
             {
                 score++;
                 Debug.Log("Success!");

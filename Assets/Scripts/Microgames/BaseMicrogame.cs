@@ -22,6 +22,8 @@ public abstract class BaseMicrogame : MonoBehaviour
     // Called after the manager is assigned
     public abstract void Initialize(float difficulty = 1f);
 
+    protected abstract void Cleanup();
+
     public virtual void StartMicrogame(float timeLimit)
     {
         timer = Mathf.Max(timeLimit, baseTime);
@@ -44,9 +46,7 @@ public abstract class BaseMicrogame : MonoBehaviour
 
     protected virtual void OnTimeout()
     {
-        running = false;
-        IsDone = true;
-        WasSuccessful = false;
+        MicrogameFailure();
     }
 
     public void ReduceTimer(float amount)
@@ -67,5 +67,6 @@ public abstract class BaseMicrogame : MonoBehaviour
         running = false;
         IsDone = true;
         WasSuccessful = false;
+        Cleanup();
     }
 }

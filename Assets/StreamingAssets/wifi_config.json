@@ -1,0 +1,11 @@
+{
+  "wifiNames": [
+    "Home_Network",
+    "OfficeWiFi",
+    "Cafe_WiFi",
+    "Library_FreeNet",
+    "GuestAccess_2025"
+  ],
+  "minFakeCount": 4,
+  "fakePerDifficultyStep": 1
+}
