@@ -84,13 +84,9 @@ public class WifiSelectionMicrogame : BaseMicrogame
     void OnButtonClicked(bool correct)
     {
         if (correct)
-            MicrogameSuccess();
+            MicrogameSuccess("SUCCESS! You chose the right SSID!");
         else
-            MicrogameFailure();
-        // hide the microgame
-        foreach (var btn in spawnedButtons)
-            Destroy(btn);
-        gameObject.SetActive(false);
+            MicrogameFailure("FAILURE! You chose an incorrect one.");
     }
 
     protected override void Cleanup()
@@ -106,6 +102,6 @@ public class WifiSelectionMicrogame : BaseMicrogame
         base.OnTimeout();  
 
         // Hide this microgame panel
-        MicrogameFailure();
+        MicrogameFailure("TIME'S UP!");
     }
 }

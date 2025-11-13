@@ -29,13 +29,14 @@ RectTransform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 7602250572114422911}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 100, y: 100}
+  m_AnchoredPosition: {x: -0.0050049, y: -0.0025024}
+  m_SizeDelta: {x: 1920, y: 1080}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &7900966317011872627
 CanvasRenderer:
@@ -59,16 +60,89 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::LogoutMicrogame
   manager: {fileID: 0}
   baseTime: 5
-  timerBar: {fileID: 1757322995235216159, guid: 1a8d11e4e820d25429bdc4112acb53be, type: 3}
+  finishTime: 0
+  timerBar: {fileID: 4574254668909647846}
+  endDelay: 2
+  bannerPrefab: {fileID: 0}
   instruction: Log out of all windows!
-  windowPrefab: {fileID: 275894640411321167, guid: b26cdcee9b458cc4da8f8cb3c2c42867, type: 3}
-  canvasParent: {fileID: 0}
-  minWindows: 3
-  maxWindows: 6
-  fakeApps:
-  - appName: Googol
-    themeColor: {r: 0, g: 1, b: 1, a: 1}
-  - appName: Drive
-    themeColor: {r: 0, g: 1, b: 0, a: 1}
-  - appName: Ball
-    themeColor: {r: 1, g: 0, b: 0, a: 0}
+  windowPrefabs:
+  - {fileID: 275894640411321167, guid: 25ee37122d93e924d90ae0d01f20fc9d, type: 3}
+  - {fileID: 275894640411321167, guid: b26cdcee9b458cc4da8f8cb3c2c42867, type: 3}
+  - {fileID: 275894640411321167, guid: 07a9d1267634cc14296aad490f9ed73a, type: 3}
+  - {fileID: 275894640411321167, guid: e832d34b4f55d7744acba54c3ab2dbf4, type: 3}
+  - {fileID: 275894640411321167, guid: ff55fb535928c604ba4e1305a22c29ca, type: 3}
+--- !u!1 &6780302363891981644
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7602250572114422911}
+  - component: {fileID: 8155667089280081109}
+  - component: {fileID: 4574254668909647846}
+  m_Layer: 5
+  m_Name: TimerImage
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &7602250572114422911
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6780302363891981644}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2622381041980452711}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0.0025634766, y: -11.567627}
+  m_SizeDelta: {x: -0.0048828125, y: 23.1409}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!222 &8155667089280081109
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6780302363891981644}
+  m_CullTransparentMesh: 1
+--- !u!114 &4574254668909647846
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6780302363891981644}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: -3809274694500071010, guid: 1afe2c5c636a794469bd9806927c01c0, type: 3}
+  m_Type: 3
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 0
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1

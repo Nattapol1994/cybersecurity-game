@@ -88,6 +88,8 @@ public class MicrogameManager : MonoBehaviour
             difficulty = Mathf.Clamp(difficulty, minDifficulty, maxDifficulty);
             UpdateUI();
 
+            yield return new WaitForSeconds(microgame.endDelay);
+
             // Destroy microgame prefab
             Destroy(currentMicrogame);
             roundNumber++;

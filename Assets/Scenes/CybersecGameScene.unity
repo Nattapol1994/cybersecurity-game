@@ -424,6 +424,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   microgames:
   - {fileID: 6421348048372712085, guid: 1f23564294b37404ab8fe48d90fe17ec, type: 3}
+  - {fileID: 651249480198045445, guid: 0a9ea877ace2e2045ac012e326d097d1, type: 3}
+  - {fileID: 790140642228295269, guid: b81df0e4ecb633b45a4463a3369f9c9d, type: 3}
   baseMicrogameTime: 3
   lives: 5
   instructionText: {fileID: 217617827}

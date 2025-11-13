@@ -1,13 +1,16 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+
 
 public class PassphraseFormingMicrogame : BaseMicrogame
 {
     [Header("UI References")]
-    [SerializeField] public Transform buttonContainer;
+    [SerializeField] public Transform selectableWordsContainer;
+    [SerializeField] public Transform selectedWordsContainer;
     [SerializeField] public GameObject wordButtonPrefab;
     [SerializeField] public TMP_Text feedbackText;
 
@@ -27,72 +30,112 @@ public class PassphraseFormingMicrogame : BaseMicrogame
             return;
         }
 
-        requiredWordCount = Mathf.Clamp(5 + Mathf.FloorToInt((difficulty - 1f) / 0.5f), 3, 8);
-        chosenWords.Clear();
+        // Always at least 3 words, scale with difficulty above that
+        requiredWordCount = Mathf.Max(4, Mathf.Clamp(5 + Mathf.FloorToInt((difficulty - 1f) / 0.5f), 3, 8));
 
+        chosenWords.Clear();
         currentWord = configData.words[Random.Range(0, configData.words.Count)];
         chosenWords.Add(currentWord);
 
-        feedbackText.text = $"Start: {currentWord.word}";
+        var btnObj = Instantiate(wordButtonPrefab, selectedWordsContainer);
+        btnObj.GetComponentInChildren<TMP_Text>().text = currentWord.word;
+
         GenerateWordChoices();
     }
 
     void GenerateWordChoices()
     {
         // Clear old buttons
-        foreach (Transform child in buttonContainer)
+        foreach (Transform child in selectableWordsContainer)
             Destroy(child.gameObject);
 
-        // Include all unrelated words as valid choices
+        // Ensure we have at least one *valid* (unrelated) and some distractors (related)
         var validChoices = configData.words
             .Where(w => !currentWord.related.Contains(w.word) && w.word != currentWord.word)
             .OrderBy(_ => Random.value)
-            .Take(1) // at least one correct option
+            .Take(2) // always have at least two unrelated choices
             .ToList();
 
-        // Fill with distractors (related words) for challenge
         var distractors = configData.words
             .Where(w => currentWord.related.Contains(w.word) || w.word == currentWord.word)
             .OrderBy(_ => Random.value)
-            .Take(3)
+            .Take(2)
             .ToList();
 
-        var allOptions = validChoices.Concat(distractors).OrderBy(_ => Random.value).ToList();
+        var allOptions = validChoices.Concat(distractors)
+            .OrderBy(_ => Random.value)
+            .ToList();
 
         foreach (var w in allOptions)
         {
-            var btnObj = Instantiate(wordButtonPrefab, buttonContainer);
+            var btnObj = Instantiate(wordButtonPrefab, selectableWordsContainer);
             btnObj.GetComponentInChildren<TMP_Text>().text = w.word;
-            btnObj.GetComponent<Button>().onClick.AddListener(() => OnWordClicked(w));
+
+            var button = btnObj.GetComponent<Button>();
+            button.onClick.AddListener(() => OnWordClicked(w, btnObj));
         }
 
         feedbackText.text =
-            $"Passphrase: {string.Join(" ", chosenWords.Select(w => w.word))}\n" +
-            $"({chosenWords.Count}/{requiredWordCount})";
+            $"Select {requiredWordCount - chosenWords.Count} more words!";
     }
 
-    void OnWordClicked(WordRelation selected)
+    IEnumerator DisableWrongChoice(GameObject buttonObj, float duration = 0.2f)
     {
-        // Fail if the player picked a word that is related or the same as current
-        if (currentWord.related.Contains(selected.word) || selected.word == currentWord.word)
+        var button = buttonObj.GetComponent<Button>();
+        var img = buttonObj.GetComponent<Image>();
+        var txt = buttonObj.GetComponentInChildren<TMP_Text>();
+
+        if (img == null) yield break;
+
+        Color originalColor = img.color;
+        Color targetColor = Color.red;
+
+        float t = 0f;
+        while (t < duration)
         {
-            MicrogameFailure();
-            return;
+            t += Time.deltaTime;
+            img.color = Color.Lerp(originalColor, targetColor, Mathf.PingPong(t * 5f, 1f));
+            yield return null;
         }
 
-        // Otherwise, append word and continue
+        // Disable interaction and set final grey
+        if (button) button.interactable = false;
+        img.color = Color.gray;
+        if (txt) txt.alpha = 0.5f;
+    }
+
+    void OnWordClicked(WordRelation selected, GameObject buttonObj)
+    {
+        // If player picked a related or same word → remove that button only
+        if (currentWord.related.Contains(selected.word) || selected.word == currentWord.word)
+        {
+            // Visual + text feedback
+            feedbackText.text = $"'{selected.word}' is too similar! Try another.";
+            StartCoroutine(DisableWrongChoice(buttonObj));
+            return; // let player continue
+        }
+
+        // Otherwise, it's valid — continue chain
+        var btnObj = Instantiate(wordButtonPrefab, selectedWordsContainer);
+        btnObj.GetComponentInChildren<TMP_Text>().text = selected.word;
         chosenWords.Add(selected);
         currentWord = selected;
 
+        feedbackText.text = $"Select {requiredWordCount - chosenWords.Count} more words!";
+
         if (chosenWords.Count >= requiredWordCount)
-            MicrogameSuccess();
+        {
+            MicrogameSuccess("SUCCESS! You formed a passphrase just in time.");
+        }
         else
+        {
             GenerateWordChoices();
+        }
     }
 
     protected override void Cleanup()
     {
-        foreach (Transform btn in buttonContainer)
+        foreach (Transform btn in selectableWordsContainer)
             Destroy(btn.gameObject);
     }
 }

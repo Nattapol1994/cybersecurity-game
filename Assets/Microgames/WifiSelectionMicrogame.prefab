@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 1732764239661285503}
   - component: {fileID: 3624226850892556801}
   - component: {fileID: 579025722453439637}
+  - component: {fileID: -6949374273609478512}
   m_Layer: 5
   m_Name: WifiSelectionMicrogame
   m_TagString: Untagged
@@ -96,12 +97,26 @@ MonoBehaviour:
   baseTime: 5
   finishTime: 0
   timerBar: {fileID: 2379038262970956500}
+  endDelay: 2
+  bannerPrefab: {fileID: 0}
   instruction: Select the correct WiFi name!
   buttonPrefab: {fileID: 2932217803423046561, guid: da2ce42ea7ddae24bbe55b1f1c0b13e8, type: 3}
   spreadX: 300
   spreadY: 100
   buttonContainer: {fileID: 4512002947206241348}
   ssidLabel: {fileID: 3531562706990212194}
+--- !u!114 &-6949374273609478512
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 790140642228295269}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2faa17910b5ad1146b54a443c1bb0117, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ActiveWatcher
 --- !u!1 &4909541140456362963
 GameObject:
   m_ObjectHideFlags: 0
