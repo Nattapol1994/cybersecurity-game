@@ -9,133 +9,178 @@ using System.Linq;
 public class PassphraseFormingMicrogame : BaseMicrogame
 {
     [Header("UI References")]
-    [SerializeField] public Transform selectableWordsContainer;
-    [SerializeField] public Transform selectedWordsContainer;
-    [SerializeField] public GameObject wordButtonPrefab;
-    [SerializeField] public TMP_Text feedbackText;
+    [SerializeField] private Transform selectableWordsContainer;
+    [SerializeField] private Transform selectedWordsContainer;
+    [SerializeField] private GameObject wordButtonPrefab;
+    [SerializeField] private TMP_Text feedbackText;
+    [SerializeField] private Button submitButton;
 
-    private WordRelationList configData;
-    private List<WordRelation> chosenWords = new();
-    private WordRelation currentWord;
-    private int requiredWordCount = 4;
+    private List<string> selectedFragments = new();
+    private List<FragmentData> fragmentPool = new();
+    private List<string> badFragments = new();
+
+    //private int minLength = 8;
+    private int targetLength = 8;
 
     public override void Initialize(float difficulty = 1f)
     {
-        // Load from JSON (assuming the file is placed in StreamingAssets/DataConfig/)
-        configData = ConfigLoader.LoadConfig<WordRelationList>("passphrase_config.json");
+        // Scale password length
+        targetLength = Mathf.RoundToInt(Mathf.Lerp(8, 20, (difficulty - 0.5f) / 1.5f));
+        baseTime = 20;
 
-        if (configData == null || configData.words.Count == 0)
-        {
-            Debug.LogError("Failed to load passphrase config or no words found!");
-            return;
-        }
+        LoadFragments();
+        SpawnWordButtons();
 
-        // Always at least 3 words, scale with difficulty above that
-        requiredWordCount = Mathf.Max(4, Mathf.Clamp(5 + Mathf.FloorToInt((difficulty - 1f) / 0.5f), 3, 8));
-
-        chosenWords.Clear();
-        currentWord = configData.words[Random.Range(0, configData.words.Count)];
-        chosenWords.Add(currentWord);
-
-        var btnObj = Instantiate(wordButtonPrefab, selectedWordsContainer);
-        btnObj.GetComponentInChildren<TMP_Text>().text = currentWord.word;
-
-        GenerateWordChoices();
+        submitButton.onClick.AddListener(OnSubmit);
+        feedbackText.text = "Assemble a strong password and press Submit!";
     }
 
-    void GenerateWordChoices()
+    private List<FragmentData> GenerateFragments()
     {
-        // Clear old buttons
+        const string LOWER = "abcdefghijklmnopqrstuvwxyz";
+        const string UPPER = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        const string NUMBERS = "0123456789";
+        const string SPECIALS = "!@#$%&*?";
+
+        List<FragmentData> fragments = new()
+        {
+          // --- STEP 1: Ensure required diversity ---
+          new FragmentData(RandomFragmentFrom(UPPER), false),   // At least one capital
+          new FragmentData(RandomFragmentFrom(NUMBERS), false), // At least one number
+          new FragmentData(RandomFragmentFrom(SPECIALS), false)// At least one special
+        };
+
+        // --- STEP 2: Generate remaining "safe" ones (mix of types) ---
+        while (fragments.Count < 10)
+        {
+            float r = Random.value;
+            string chars;
+            if (r < 0.5f) chars = LOWER;
+            else if (r < 0.7f) chars = UPPER;
+            else if (r < 0.9f) chars = NUMBERS;
+            else chars = SPECIALS;
+
+            fragments.Add(new FragmentData(RandomFragmentFrom(chars), false));
+        }
+
+        // --- STEP 3: Generate "unsafe" (polluting) ones ---
+        // Mostly lowercase or common bad fragments
+        // while (fragments.Count < 10)
+        // {
+        //     string frag;
+        //     float r = Random.value;
+
+        //     // Some chance for lower-only, some chance for common bad patterns
+        //     // Example common bad patterns - can be expanded later
+        //         string[] commonBad = { "123", "abc", "pass", "qwe", "000", "111", "xyz" };
+        //         frag = commonBad[Random.Range(0, commonBad.Length)];
+            
+
+        //     fragments.Add(new FragmentData(frag, true));
+        // }
+
+        // --- STEP 4: Shuffle for randomness ---
+        return fragments.OrderBy(_ => Random.value).ToList();
+    }
+
+    // Helper: generate a 2–3 character fragment
+    private string RandomFragmentFrom(string source)
+    {
+        int len = Random.Range(2, 4);
+        char[] chars = new char[len];
+        for (int i = 0; i < len; i++)
+            chars[i] = source[Random.Range(0, source.Length)];
+        return new string(chars);
+    }
+
+    private void LoadFragments()
+    {
+        // Example — replace with JSON or real config
+        fragmentPool = GenerateFragments();
+
+        badFragments = fragmentPool.Where(f => f.isBad).Select(f => f.text).ToList();
+    }
+
+    private void SpawnWordButtons()
+    {
         foreach (Transform child in selectableWordsContainer)
             Destroy(child.gameObject);
 
-        // Ensure we have at least one *valid* (unrelated) and some distractors (related)
-        var validChoices = configData.words
-            .Where(w => !currentWord.related.Contains(w.word) && w.word != currentWord.word)
-            .OrderBy(_ => Random.value)
-            .Take(2) // always have at least two unrelated choices
-            .ToList();
-
-        var distractors = configData.words
-            .Where(w => currentWord.related.Contains(w.word) || w.word == currentWord.word)
-            .OrderBy(_ => Random.value)
-            .Take(2)
-            .ToList();
-
-        var allOptions = validChoices.Concat(distractors)
-            .OrderBy(_ => Random.value)
-            .ToList();
-
-        foreach (var w in allOptions)
+        foreach (var frag in fragmentPool)
         {
             var btnObj = Instantiate(wordButtonPrefab, selectableWordsContainer);
-            btnObj.GetComponentInChildren<TMP_Text>().text = w.word;
+            var text = btnObj.GetComponentInChildren<TMP_Text>();
+            text.text = frag.text;
 
             var button = btnObj.GetComponent<Button>();
-            button.onClick.AddListener(() => OnWordClicked(w, btnObj));
+            button.onClick.AddListener(() => ToggleFragment(frag.text, btnObj));
         }
-
-        feedbackText.text =
-            $"Select {requiredWordCount - chosenWords.Count} more words!";
     }
 
-    IEnumerator DisableWrongChoice(GameObject buttonObj, float duration = 0.2f)
+    private void ToggleFragment(string frag, GameObject btnObj)
     {
-        var button = buttonObj.GetComponent<Button>();
-        var img = buttonObj.GetComponent<Image>();
-        var txt = buttonObj.GetComponentInChildren<TMP_Text>();
+        bool alreadySelected = selectedFragments.Contains(frag);
 
-        if (img == null) yield break;
-
-        Color originalColor = img.color;
-        Color targetColor = Color.red;
-
-        float t = 0f;
-        while (t < duration)
+        if (alreadySelected)
         {
-            t += Time.deltaTime;
-            img.color = Color.Lerp(originalColor, targetColor, Mathf.PingPong(t * 5f, 1f));
-            yield return null;
-        }
-
-        // Disable interaction and set final grey
-        if (button) button.interactable = false;
-        img.color = Color.gray;
-        if (txt) txt.alpha = 0.5f;
-    }
-
-    void OnWordClicked(WordRelation selected, GameObject buttonObj)
-    {
-        // If player picked a related or same word → remove that button only
-        if (currentWord.related.Contains(selected.word) || selected.word == currentWord.word)
-        {
-            // Visual + text feedback
-            feedbackText.text = $"'{selected.word}' is too similar! Try another.";
-            StartCoroutine(DisableWrongChoice(buttonObj));
-            return; // let player continue
-        }
-
-        // Otherwise, it's valid — continue chain
-        var btnObj = Instantiate(wordButtonPrefab, selectedWordsContainer);
-        btnObj.GetComponentInChildren<TMP_Text>().text = selected.word;
-        chosenWords.Add(selected);
-        currentWord = selected;
-
-        feedbackText.text = $"Select {requiredWordCount - chosenWords.Count} more words!";
-
-        if (chosenWords.Count >= requiredWordCount)
-        {
-            MicrogameSuccess("SUCCESS! You formed a passphrase just in time.");
+            selectedFragments.Remove(frag);
+            btnObj.transform.SetParent(selectableWordsContainer);
         }
         else
         {
-            GenerateWordChoices();
+            selectedFragments.Add(frag);
+            btnObj.transform.SetParent(selectedWordsContainer);
         }
+
+        UpdateFeedback();
+    }
+
+    private void UpdateFeedback()
+    {
+        string assembled = string.Join("", selectedFragments);
+        var (valid, message) = ValidatePassword(assembled);
+        feedbackText.text = message;
+    }
+
+    private (bool, string) ValidatePassword(string pass)
+    {
+        if (badFragments.Any(bad => pass.Contains(bad)))
+            return (false, "Contains unsafe fragment!");
+        if (pass.Length < targetLength)
+            return (false, $"Too short! ({pass.Length}/{targetLength})");
+        if (!pass.Any(char.IsUpper))
+            return (false, "Needs a capital letter!");
+        if (!pass.Any(char.IsLower))
+            return (false, "Needs a lowercase letter!");
+        if (!pass.Any(char.IsDigit))
+            return (false, "Needs a number!");
+        if (!pass.Any(c => "!@#$%^&*".Contains(c)))
+            return (false, "Needs a special symbol!");
+
+        return (true, "Looks strong!");
+    }
+
+    private void OnSubmit()
+    {
+        string pass = string.Join("", selectedFragments);
+        var (valid, message) = ValidatePassword(pass);
+
+        if (valid)
+            MicrogameSuccess("Nice! Strong passphrase!");
+        else
+            MicrogameFailure("Failure! Passphrase too weak!");
     }
 
     protected override void Cleanup()
     {
-        foreach (Transform btn in selectableWordsContainer)
-            Destroy(btn.gameObject);
+        submitButton.onClick.RemoveAllListeners();
     }
+}
+
+[System.Serializable]
+public class FragmentData
+{
+    public string text;
+    public bool isBad;
+    public FragmentData(string t, bool bad) { text = t; isBad = bad; }
 }

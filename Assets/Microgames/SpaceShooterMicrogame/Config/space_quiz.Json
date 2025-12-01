@@ -1,0 +1,40 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "prompt": "Which protocol is used to securely browse the web?",
+      "choices": [
+        "HTTP",
+        "FTP",
+        "HTTPS"
+      ],
+      "correctIndex": 2,
+      "questionDisplayTime": 5.0,
+      "baseAnswerTime": 10.0
+    },
+    {
+      "id": "q2",
+      "prompt": "What does \"CPU\" stand for?",
+      "choices": [
+        "Central Processing Unit",
+        "Computer Personal Unit",
+        "Central Program Utility"
+      ],
+      "correctIndex": 0,
+      "questionDisplayTime": 6.0,
+      "baseAnswerTime": 10.0
+    },
+    {
+      "id": "q3",
+      "prompt": "Which one is an example of cloud storage?",
+      "choices": [
+        "Google Drive",
+        "USB flash drive",
+        "CD-ROM"
+      ],
+      "correctIndex": 0,
+      "questionDisplayTime": 5.0,
+      "baseAnswerTime": 8.0
+    }
+  ]
+}
